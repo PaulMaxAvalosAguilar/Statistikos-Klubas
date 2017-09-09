@@ -230,12 +230,15 @@ public class TrabajosNode extends AbstractNode {
                 
                 datos.forEach((t) -> {
                     try {
-                        System.out.println(t.getId());
                         ddao.deleteRegistro(t.getId());
+                        
                     } catch (NonexistentEntityException ex) {
                         Exceptions.printStackTrace(ex);
                     }
                 });
+                NotifyDescriptor nd = new NotifyDescriptor.Message("Data was succesfully "
+                                + "deleted");
+                        DialogDisplayer.getDefault().notify(nd);
             }
         });
     }
