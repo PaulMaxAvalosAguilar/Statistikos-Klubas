@@ -105,8 +105,7 @@ public class Datos implements Serializable {
 
     
     @ManyToOne
-    @JoinColumn(name = "trabajo")
-    @Cascade(CascadeType.ALL)
+    @JoinColumn(name = "trabajo")    
     public Trabajos getTrabajo() {
         return (trabajo == null) ? _trabajo : trabajo.get();
     }
