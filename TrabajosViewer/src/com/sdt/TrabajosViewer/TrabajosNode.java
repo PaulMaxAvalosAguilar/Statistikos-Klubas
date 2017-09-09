@@ -18,6 +18,7 @@
 package com.sdt.TrabajosViewer;
 
 import com.sdt.Capabilities.AddingCapability;
+import com.sdt.Capabilities.DeletingDataCapabilty;
 import com.sdt.Capabilities.RemovableTrabajosCapability;
 import com.sdt.Capabilities.UpdateCapability;
 import com.sdt.Datos.Controllers.exceptions.NonexistentEntityException;
@@ -25,17 +26,13 @@ import com.sdt.Datos.Datos;
 import com.sdt.Datos.Trabajos;
 import com.sdt.Datos.dao.DatosDao;
 import com.sdt.Datos.dao.TrabajosDao;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.EntityManager;
 import javax.swing.Action;
 import org.netbeans.api.actions.Openable;
 import org.openide.DialogDescriptor;
@@ -140,9 +137,9 @@ public class TrabajosNode extends AbstractNode {
                     if (errors) {
                         NotifyDescriptor nd = new NotifyDescriptor.Message(
                                 "There were lines that couldn't be"
-                                        + "parsed thus the program will give incorrect results."
-                                        + "It is recommended for you to check errors in your data"
-                                        + "load and readd data",
+                                + "parsed thus the program will give incorrect results."
+                                + "It is recommended for you to check errors in your data"
+                                + "load and readd data",
                                 NotifyDescriptor.ERROR_MESSAGE);
                         DialogDisplayer.getDefault().notify(nd);
                     } else {
@@ -204,6 +201,42 @@ public class TrabajosNode extends AbstractNode {
                 }
             }
 
+        });
+
+        instanceContent.add(new DeletingDataCapabilty() {
+            @Override
+            public void delete() {
+
+                TopComponent tc = WindowManager.getDefault().findTopComponent(
+                        "VistaTrabajosTopComponent");
+                
+                Trabajos trabajo = null;
+                
+                if (tc != null) {
+                    Lookup lookup = tc.getLookup();
+                    Collection<? extends Trabajos> todotrabajos = lookup.lookupAll(Trabajos.class);
+                    trabajo = todotrabajos.iterator().next();
+                }
+                
+                int numero = trabajo.getId();
+
+                EntityManager man = DatosDao.getInstance().getEntityManager();
+                List<Datos> datos;
+                DatosDao ddao = DatosDao.getInstance();
+                StringBuilder sb = new StringBuilder();
+                sb.append("SELECT c FROM Datos c WHERE c.trabajo.id = ");
+                sb.append(numero);
+                datos = man.createQuery(sb.toString()).getResultList();
+                
+                datos.forEach((t) -> {
+                    try {
+                        System.out.println(t.getId());
+                        ddao.deleteRegistro(t.getId());
+                    } catch (NonexistentEntityException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                });
+            }
         });
     }
 
