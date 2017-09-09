@@ -70,7 +70,7 @@ public class MathDisplay {
 
             for (int counter = 0; counter < list.size(); counter++) {
 
-                double d = Double.valueOf(list.get(counter).getNumero().replaceAll(",", "."));
+                double d = list.get(counter).getNumero();
                 stats.addValue(d);
                 modeList.add(d);
             }

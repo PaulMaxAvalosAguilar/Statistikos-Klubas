@@ -55,7 +55,7 @@ public class Graphs {
 
         for (int counter = 0; counter < list.size(); counter++) {
             String name = String.valueOf(counter + 1);
-            double d = Double.valueOf(list.get(counter).getNumero().replaceAll(",", "."));
+            double d = list.get(counter).getNumero();
             series.getData().add(new XYChart.Data(name, d));
         }
 

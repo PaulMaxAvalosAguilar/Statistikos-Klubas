@@ -19,12 +19,12 @@ package com.sdt.Datos;
 
 import java.io.Serializable;
 import java.util.Objects;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -79,15 +79,15 @@ public class Datos implements Serializable {
         return (id == null) ? id = new SimpleIntegerProperty(this, "id", _id) : id;
     }
 
-    private StringProperty numero;
-    private String _numero;
+    private DoubleProperty numero;
+    private double _numero;
 
     @Column
-    public String getNumero() {
+    public double getNumero() {
         return (numero == null) ? _numero : numero.get();
     }
 
-    public void setNumero(String numero) {
+    public void setNumero(Double numero) {
         if (this.numero == null) {
             _numero = numero;
         } else {
@@ -95,8 +95,8 @@ public class Datos implements Serializable {
         }
     }
 
-    public StringProperty numeroProperty() {
-        return (numero == null) ? numero = new SimpleStringProperty(this, "numero", _numero) : numero;
+    public DoubleProperty numeroProperty() {
+        return (numero == null) ? numero = new SimpleDoubleProperty(this, "numero", _numero) : numero;
     }
 
     

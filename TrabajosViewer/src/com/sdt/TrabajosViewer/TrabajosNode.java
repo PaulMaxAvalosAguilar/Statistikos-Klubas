@@ -102,87 +102,59 @@ public class TrabajosNode extends AbstractNode {
         instanceContent.add(new AddingCapability() {
             @Override
             public void add() {
-
-                NotifyDescriptor.InputLine msg = new NotifyDescriptor.InputLine(Bundle.Path_File(),
-                        Bundle.Path_Title());
-                Object result = DialogDisplayer.getDefault().notify(msg);
-                if (NotifyDescriptor.CANCEL_OPTION.equals(result)) {
-                    return;
-                }
-
-                String file = msg.getInputText();
-                //check for a zero lenght newName
-                if (file.equals("")) {
-                    return;
-                }
-
-                if (NotifyDescriptor.YES_OPTION.equals(result)) {
+                Values vpanel = new Values();
+                DialogDescriptor text = new DialogDescriptor(vpanel, "Input data to add");
+                if (DialogDisplayer.getDefault().notify(text) == NotifyDescriptor.OK_OPTION) {
                     TopComponent tc = WindowManager.getDefault().findTopComponent(
                             "VistaTrabajosTopComponent");
+
                     Trabajos trabajo = null;
                     Datos dato;
                     DatosDao ddao = DatosDao.getInstance();
+                    boolean errors = false;
 
                     if (tc != null) {
                         Lookup lookup = tc.getLookup();
                         Collection<? extends Trabajos> todotrabajos = lookup.lookupAll(Trabajos.class);
                         trabajo = todotrabajos.iterator().next();
                     }
-                    File f = new File(file);
-                    if (f.exists()) {
 
-                        FilePanel panel = new FilePanel();
-                        DialogDescriptor dd = new DialogDescriptor(panel, Bundle.File_Checking());
-                        if (DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION) {
-                            try {
-                                String numero = "";
-                                FileReader flE = new FileReader(f);
-                                BufferedReader fE = new BufferedReader(flE);
-                                while (numero != null) {
-                                    numero = fE.readLine();
-                                    if (numero != null) {
+                    String sa = vpanel.getTextArea().getText().replaceAll("(?m)^[ \t]*\r?\n", "");
+                    String[] s = sa.split("\\r?\\n");
+                    ArrayList<String> arrList = new ArrayList<>(Arrays.asList(s));
+                    for (int i = 0; i < arrList.size(); i++) {
+                        try {
+                            double numero = Double.valueOf(arrList.get(i).replaceAll(",", "."));
+                            dato = new Datos();
+                            dato.setNumero(numero);
+                            dato.setTrabajo(trabajo);
+                            ddao.updateRegistro(dato);
 
-                                        dato = new Datos();
-                                        dato.setNumero(numero);
-                                        dato.setTrabajo(trabajo);
-                                        ddao.updateRegistro(dato);
-                                    }
-
-                                }
-
-                                fE.close();
-                                flE.close();
-
-                                NotifyDescriptor nd = new NotifyDescriptor.Message("Data added");
-                                DialogDisplayer.getDefault().notify(nd);
-                                WindowManager.getDefault().findTopComponent(
-                                        "TrabajosEditorTopComponent").open();
-                            } catch (FileNotFoundException ex) {
-                                NotifyDescriptor nd = new NotifyDescriptor.Message(
-                                        "The file was not found at runtime", NotifyDescriptor.ERROR_MESSAGE);
-                                DialogDisplayer.getDefault().notify(nd);
-                            } catch (IOException ex) {
-                                NotifyDescriptor nd = new NotifyDescriptor.Message(
-                                        "File could not be read", NotifyDescriptor.ERROR_MESSAGE);
-                                DialogDisplayer.getDefault().notify(nd);
-                                Logger.getLogger(TrabajosNode.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (Exception ex) {
-                                NotifyDescriptor nd = new NotifyDescriptor.Message(
-                                        "File could not be read", NotifyDescriptor.ERROR_MESSAGE);
-                                DialogDisplayer.getDefault().notify(nd);
-                                Logger.getLogger(TrabajosNode.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-
-                    } else {
-                        NotFilePanel npanel = new NotFilePanel();
-                        DialogDescriptor dd = new DialogDescriptor(npanel, Bundle.File_Checking());
-                        if (DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION) {
-
+                        } catch (NumberFormatException ex) {
+                            errors = true;
+                        } catch (Exception ex) {
+                            Exceptions.printStackTrace(ex);
                         }
                     }
 
+                    if (errors) {
+                        NotifyDescriptor nd = new NotifyDescriptor.Message(
+                                "There were lines that couldn't be"
+                                        + "parsed thus the program will give incorrect results."
+                                        + "It is recommended for you to check errors in your data"
+                                        + "load and readd data",
+                                NotifyDescriptor.ERROR_MESSAGE);
+                        DialogDisplayer.getDefault().notify(nd);
+                    } else {
+                        NotifyDescriptor nd = new NotifyDescriptor.Message("Data was succesfully "
+                                + "added");
+                        DialogDisplayer.getDefault().notify(nd);
+                        WindowManager.getDefault().findTopComponent(
+                                "TrabajosEditorTopComponent").open();
+                    }
+
                 }
+
             }
         });
 
@@ -205,12 +177,12 @@ public class TrabajosNode extends AbstractNode {
                 String update = null;
                 Trabajos trabajo = null;
                 Lookup lookup = tc.getLookup();
-                Collection<? extends Trabajos> todotrabajos = lookup.lookupAll(Trabajos.class);
+                Collection<? extends Trabajos> todotrabajos = lookup.lookupAll(Trabajos.class
+                );
                 trabajo = todotrabajos.iterator().next();
                 msg.setInputText(trabajo.getNombreTrabajo());
                 Object result = DialogDisplayer.getDefault().notify(msg);
-                
-                
+
                 if (NotifyDescriptor.CANCEL_OPTION.equals(result)) {
                     return;
                 }
@@ -237,7 +209,9 @@ public class TrabajosNode extends AbstractNode {
 
     public Action[] getActions(boolean context) {
         List<Action> trabajosActions = new ArrayList<>(Arrays.asList(super.getActions(context)));
-        trabajosActions.add(DeleteAction.get(DeleteAction.class));
+        trabajosActions
+                .add(DeleteAction.get(DeleteAction.class
+                ));
         trabajosActions.addAll(Utilities.actionsForPath("Actions/AddingData"));
         trabajosActions.addAll(Utilities.actionsForPath("Actions/OpenNodes"));
         trabajosActions.addAll(Utilities.actionsForPath("Actions/Update"));
@@ -262,8 +236,10 @@ public class TrabajosNode extends AbstractNode {
     @Override
     public void destroy() throws IOException {
         final RemovableTrabajosCapability doremove = getLookup().lookup(
-                RemovableTrabajosCapability.class);
-        final Trabajos trabajos = getLookup().lookup(Trabajos.class);
+                RemovableTrabajosCapability.class
+        );
+        final Trabajos trabajos = getLookup().lookup(Trabajos.class
+        );
         if (doremove != null && trabajos != null) {
             doremove.remove(trabajos);
         }
