@@ -18,6 +18,8 @@
 package com.sdt.Editor.MathClassses;
 
 import com.sdt.Datos.Datos;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -190,15 +192,27 @@ public class MathDisplay {
             textAppend = String.format("\nEl numero de clases es %d\n", numero_clase);
             datosGarea.appendText(textAppend);
 
-            double largoClase = range / numero_clase;
-            String text = Double.toString(Math.abs(largoClase));
-            int integerPlaces = text.indexOf('.');
-            int decimalPlaces = text.length() - integerPlaces - 1;
-            if (decimalPlaces > 8) {
-                largoClase = Math.ceil(largoClase);
-                ceil = true;
+            /*
+            
+             */
+            //Division decimal y gestion de redondeo
+            BigDecimal rangedecimal = new BigDecimal(range);
+            BigDecimal n_clasedecimal = new BigDecimal(numero_clase);
 
+            BigDecimal largoClasedecimal = new BigDecimal(0);
+            try {
+                largoClasedecimal = rangedecimal.divide(n_clasedecimal);
+            } catch (ArithmeticException ex) {
+                largoClasedecimal = rangedecimal.divide(n_clasedecimal, 2, RoundingMode.CEILING);
+                ceil = true;
             }
+
+            double largoClase = largoClasedecimal.doubleValue();
+            //Fin de division decimal y gestion de redondeo
+            /*
+            
+            
+             */
             textAppend = String.format("El largo de clase es %.2f\n", largoClase);
             datosGarea.appendText(textAppend);
 
