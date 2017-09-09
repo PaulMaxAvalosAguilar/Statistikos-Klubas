@@ -1,0 +1,17 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.1" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<persistence-unit name="aplicacion" transaction-type="RESOURCE_LOCAL">
+<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+<class>com.sdt.data.Datos</class>
+<class>com.sdt.data.TrabajosDao</class>
+
+<properties>
+<property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/data/base"/>
+<property name="javax.persistence.jdbc.user" value="alomandar"/>
+<property name="javax.persistence.jdbc.password" value="rac"/>
+<property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+
+<property name="hibernate.hbm2ddl.auto" value="update"/>
+</properties>
+</persistence-unit>
+</persistence>
