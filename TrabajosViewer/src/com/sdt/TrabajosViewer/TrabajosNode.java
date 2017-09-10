@@ -149,7 +149,8 @@ public class TrabajosNode extends AbstractNode {
                         WindowManager.getDefault().findTopComponent(
                                 "TrabajosEditorTopComponent").open();
                     }
-
+                    instanceContent.remove(trabajo);
+                    instanceContent.add(trabajo);
                 }
 
             }
@@ -209,15 +210,15 @@ public class TrabajosNode extends AbstractNode {
 
                 TopComponent tc = WindowManager.getDefault().findTopComponent(
                         "VistaTrabajosTopComponent");
-                
+
                 Trabajos trabajo = null;
-                
+
                 if (tc != null) {
                     Lookup lookup = tc.getLookup();
                     Collection<? extends Trabajos> todotrabajos = lookup.lookupAll(Trabajos.class);
                     trabajo = todotrabajos.iterator().next();
                 }
-                
+
                 int numero = trabajo.getId();
 
                 EntityManager man = DatosDao.getInstance().getEntityManager();
@@ -227,18 +228,20 @@ public class TrabajosNode extends AbstractNode {
                 sb.append("SELECT c FROM Datos c WHERE c.trabajo.id = ");
                 sb.append(numero);
                 datos = man.createQuery(sb.toString()).getResultList();
-                
+
                 datos.forEach((t) -> {
                     try {
                         ddao.deleteRegistro(t.getId());
-                        
+
                     } catch (NonexistentEntityException ex) {
                         Exceptions.printStackTrace(ex);
                     }
                 });
                 NotifyDescriptor nd = new NotifyDescriptor.Message("Data was succesfully "
-                                + "deleted");
-                        DialogDisplayer.getDefault().notify(nd);
+                        + "deleted");
+                DialogDisplayer.getDefault().notify(nd);
+                instanceContent.remove(trabajo);
+                instanceContent.add(trabajo);
             }
         });
     }
