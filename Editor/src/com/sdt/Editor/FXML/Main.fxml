@@ -8,6 +8,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -20,7 +22,26 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #1FAEEB;">
                      <children>
-                        <TextArea fx:id="datosGarea" layoutX="22.0" layoutY="17.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="334.0" prefWidth="557.0" style="-fx-background-color: #3333FF;" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="17.0" />
+                        <TextArea fx:id="datosGarea" layoutX="22.0" layoutY="17.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="190.0" prefWidth="755.0" style="-fx-background-color: #3333FF;" AnchorPane.bottomAnchor="253.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="17.0" />
+                        <TableView fx:id="tablafrec" layoutX="22.0" layoutY="220.0" prefHeight="202.0" prefWidth="355.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="22.0">
+                          <columns>
+                            <TableColumn fx:id="notablafrec" prefWidth="46.0" text="No." />
+                            <TableColumn fx:id="limitablafrec" prefWidth="61.0" text="Lim. I." />
+                              <TableColumn fx:id="limstablafrec" prefWidth="62.0" text="Lim. S." />
+                              <TableColumn fx:id="fabstablafrec" prefWidth="88.0" text="F.Abs" />
+                              <TableColumn fx:id="freltablafrec" prefWidth="95.0" text="F.Relativa" />
+                          </columns>
+                        </TableView>
+                        <TableView fx:id="tabladist" layoutX="422.0" layoutY="220.0" prefHeight="205.0" prefWidth="355.0" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="21.0">
+                           <columns>
+                              <TableColumn fx:id="notabladist" prefWidth="48.0" text="No." />
+                              <TableColumn fx:id="valortabladist" prefWidth="69.0" text="Valor" />
+                              <TableColumn fx:id="dacumabstabladist" prefWidth="115.0" text="D. Acum Abs." />
+                              <TableColumn fx:id="dacumreltabladist" prefWidth="121.0" text="D. Acum. Rel." />
+                           </columns>
+                        </TableView>
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="119.0" layoutY="213.0" prefHeight="21.0" prefWidth="160.0" text="Tabla de Frecuencias" textFill="RED" AnchorPane.bottomAnchor="226.0" AnchorPane.leftAnchor="119.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="520.0" layoutY="213.0" prefHeight="21.0" prefWidth="160.0" text="Tabla de Distribuciones" textFill="RED" AnchorPane.bottomAnchor="226.0" AnchorPane.rightAnchor="118.0" />
                      </children></AnchorPane>
             </content>
           </Tab>

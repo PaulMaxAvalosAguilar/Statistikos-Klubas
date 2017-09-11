@@ -18,14 +18,22 @@
 package com.sdt.Editor.MathClassses;
 
 import com.sdt.Datos.Datos;
+import com.sdt.Datos.Distribuciones;
+import com.sdt.Datos.Frecuencias;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
@@ -35,6 +43,18 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 public class MathDisplay {
 
     private final TextArea datosGarea;
+    private TableView tablafrec;
+    private TableView tabladist;
+    private TableColumn<Frecuencias, Integer> notablafrec;
+    private TableColumn<Frecuencias, String> limitablafrec;
+    private TableColumn<Frecuencias, String> limstablafrec;
+    private TableColumn<Frecuencias, String> fabstablafrec;
+    private TableColumn<Frecuencias, String> freltablafrec;
+    private TableColumn<Distribuciones, Integer> notabladist;
+    private TableColumn<Distribuciones, String> valortabladist;
+    private TableColumn<Distribuciones, String> dacumabstabladist;
+    private TableColumn<Distribuciones, String> dacumreltabladist;
+
     private final List<Datos> list;
     private DescriptiveStatistics stats;
 
@@ -53,10 +73,30 @@ public class MathDisplay {
     private boolean hayDatos;
 
     public MathDisplay(TextArea text, List<Datos> list,
-            String nombre) {
+            String nombre, TableView tablafrec, TableColumn<Frecuencias, Integer> notablafrec,
+            TableColumn<Frecuencias, String> limitablafrec,
+            TableColumn<Frecuencias, String> limstablafrec,
+            TableColumn<Frecuencias, String> fabstablafrec,
+            TableColumn<Frecuencias, String> freltablafrec, 
+            TableView tabladist,
+            TableColumn<Distribuciones, Integer> notabladist,
+            TableColumn<Distribuciones, String> valortabladist,
+            TableColumn<Distribuciones, String> dacumabstabladist,
+            TableColumn<Distribuciones, String> dacumreltabladist) {
         this.datosGarea = text;
         this.list = list;
         this.nombre = nombre;
+        this.tablafrec = tablafrec;
+        this.notablafrec = notablafrec;
+        this.limitablafrec = limitablafrec;
+        this.limstablafrec = limstablafrec;
+        this.fabstablafrec = fabstablafrec;
+        this.freltablafrec = freltablafrec;
+        this.notabladist = notabladist;
+        this.valortabladist = valortabladist;
+        this.dacumabstabladist = dacumabstabladist;
+        this.dacumreltabladist = dacumreltabladist;
+        this.tabladist = tabladist;
         calculate();
 
     }
@@ -216,25 +256,24 @@ public class MathDisplay {
             textAppend = String.format("El largo de clase es %.2f\n", largoClase);
             datosGarea.appendText(textAppend);
 
-            double limiteInferior = minValue;
-
-            textAppend = String.format("%s%9s%14s%22s%24s\n", "Numero", "Lim.inf", "Lim.Superior",
-                    "Frecuencia Absoluta", "Frecuencia Relativa");
-            datosGarea.appendText(textAppend);
-
-            //Aqui se añaden listas para los charts 
+            //Listas para charts
             List<Double> valoresAc = new ArrayList<>();
             List<Double> valoresRel = new ArrayList<>();
+            List<String> intervalos = new ArrayList<>();
             setFrecuenciaAbs(valoresAc);
             setFrecuenciaRel(valoresRel);
-            //Lista de intervalos para graficacion
-            List<String> intervalos = new ArrayList<>();
             setIntervalos(intervalos);
+
+            final ObservableList<Frecuencias> datosFrec = FXCollections.observableArrayList();
+
+            double limiteInferior = minValue;
             for (int i = 0; i < numero_clase; i++) {
 
                 double limiteSuperior;
                 double siguienteValor;
                 double frecuencia;
+                double relativa;
+                Frecuencias frecuencias = new Frecuencias();
 
                 if (i == numero_clase - 1) {
                     if (ceil == true) {
@@ -244,9 +283,7 @@ public class MathDisplay {
                         for (Double d : modeList) {
                             if ((d >= limiteInferior) && (d <= siguienteValor)) {
                                 ++frecuencia;
-
                             }
-
                         }
                     } else {
                         limiteSuperior = limiteInferior + largoClase;
@@ -255,43 +292,57 @@ public class MathDisplay {
                         for (Double d : modeList) {
                             if ((d >= limiteInferior) && (d <= siguienteValor)) {
                                 ++frecuencia;
-
                             }
-
                         }
                     }
                 } else {
-
                     limiteSuperior = limiteInferior + largoClase;
                     siguienteValor = limiteSuperior - .01;
                     frecuencia = 0;
                     for (Double d : modeList) {
                         if ((d >= limiteInferior) && (d <= siguienteValor)) {
                             ++frecuencia;
-
                         }
-
                     }
-
                 }
-
-                valoresAc.add(frecuencia);
-                double relativa = (frecuencia / numero_valores) * 100;
-                valoresRel.add(relativa);
-
-                textAppend = String.format("%-15d%.2f%15.2f%24.2f%30.3f%%\n", i + 1, limiteInferior,
-                        siguienteValor, frecuencia, relativa);
                 //Concatenacion para graficacion
                 String a = String.format("%.1f-", limiteInferior);
                 String b = String.format("%.1f", limiteSuperior);
+                relativa = (frecuencia / numero_valores) * 100;
+
+                /*
+                Set of values for display
+                
+                 */
+                DecimalFormat fE = new DecimalFormat("#.####");
+
+                frecuencias.setNumero(i + 1);
+                frecuencias.setFrecAbs(fE.format(frecuencia));
+                frecuencias.setFrecRel(String.format("%.2f%%", relativa));
+                frecuencias.setLimiteInferior(fE.format(limiteInferior));
+                frecuencias.setSiguienteValor(fE.format(siguienteValor));
+                valoresAc.add(frecuencia);
+                valoresRel.add(relativa);
+                datosFrec.add(frecuencias);
                 StringBuilder sb = new StringBuilder();
                 sb.append(a).append(b);
                 intervalos.add(sb.toString());
 
-                datosGarea.appendText(textAppend);
-
                 limiteInferior = limiteSuperior;
             }
+
+            //asignacion de columnas
+            notablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, Integer>(
+                    "numero"));
+            limitablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, String>(
+                    "limiteInferior"));
+            limstablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, String>(
+                    "siguienteValor"));
+            fabstablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, String>(
+                    "frecAbs"));
+            freltablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, String>(
+                    "frecRel"));
+            tablafrec.setItems(datosFrec);
 
             /*
             
@@ -313,77 +364,72 @@ public class MathDisplay {
             
             
              */
-            limiteInferior = minValue;
-
-            textAppend = String.format("\n\nDistribuciones acumuladas\n");
-            datosGarea.appendText(textAppend);
-            textAppend = String.format("%s%10s%20s%20s\n", "Numero", "Valor", "Dist.Acum Abs",
-                    "Dist.Acum Rel");
-            datosGarea.appendText(textAppend);
-
+            //Listas para charts
             List<Double> distacAbs = new ArrayList<>();
             List<Double> distacRel = new ArrayList<>();
             List<String> intervalosdist = new ArrayList<>();
             setdistacAbs(distacAbs);
             setdistacRel(distacRel);
             setintervalosdist(intervalosdist);
-
+            
+            final ObservableList<Distribuciones> datosDistr = FXCollections.observableArrayList();
+            
             double frecAc = 0;
             double frecRel = 0;
+            limiteInferior = minValue;
             for (int i = 0; i < numero_clase + 1; i++) {
                 double limiteSuperior = limiteInferior + largoClase;
+                Distribuciones dist = new Distribuciones();
 
                 if (i == 0) {
-                    textAppend = String.format("%-9d%12.2f%18.2f%28.2f%%\n", i + 1,
-                            limiteInferior, frecAc,
-                            frecRel
-                    );
-                    datosGarea.appendText(textAppend);
-                    distacRel.add(frecRel);
-                    distacAbs.add(frecAc);
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("<").append(String.format("%.2f", limiteInferior));
-                    intervalosdist.add(sb.toString());
-                } else if (i > 0) {
+                    frecAc = 0;
+                    frecRel = 0;
+                    limiteInferior = minValue;
 
+                } else if (i > 0) {
                     if (i == (numero_clase + 1) - 1) {
                         limiteInferior = maxValue;
                         frecAc += valoresAc.get(i - 1);
                         frecRel = (frecAc / numero_valores) * 100;
-                        textAppend = String.format("%-9d%12.2f%18.2f%27.2f%%\n", i + 1,
-                                limiteInferior, frecAc,
-                                frecRel
-                        );
-                        datosGarea.appendText(textAppend);
-                        distacRel.add(frecRel);
-                        distacAbs.add(frecAc);
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("<").append(String.format("%.2f", limiteInferior));
-                        intervalosdist.add(sb.toString());
                     } else {
                         frecAc += valoresAc.get(i - 1);
                         frecRel = (frecAc / numero_valores) * 100;
-                        textAppend = String.format("%-9d%12.2f%18.2f%27.2f%%\n", i + 1,
-                                limiteInferior, frecAc,
-                                frecRel
-                        );
-                        datosGarea.appendText(textAppend);
-                        distacRel.add(frecRel);
-                        distacAbs.add(frecAc);
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("<").append(String.format("%.2f", limiteInferior));
-                        intervalosdist.add(sb.toString());
                     }
 
                 }
 
+                DecimalFormat fE = new DecimalFormat("#.####");
+                dist.setNumero(i + 1);
+                dist.setValor(fE.format(limiteInferior));
+                dist.setDistribucionacum(fE.format(frecAc));
+                dist.setDistribucionrelativa(String.format("%.2f%%", frecRel));
+                distacRel.add(frecRel);
+                distacAbs.add(frecAc);
+                datosDistr.add(dist);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<").append(String.format("%.2f", limiteInferior));
+                intervalosdist.add(sb.toString());
+
                 limiteInferior = limiteSuperior;
             }
             limiteInferior = minValue;
+            
+            notabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, Integer>(
+                    "numero"));
+            valortabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, String>(
+                    "valor"));
+            dacumabstabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, String>(
+                    "distribucionacum"));
+            dacumreltabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, String>(
+                    "distribucionrelativa"));
+            tabladist.setItems(datosDistr);
 
         } else {
             datosGarea.appendText("No hay valores\n");
             this.hayDatos = false;
+            tablafrec.getItems().clear();
+            tabladist.getItems().clear();
         }
 
     }

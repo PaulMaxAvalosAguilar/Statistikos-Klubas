@@ -19,6 +19,8 @@ package com.sdt.Editor.FXControllers;
 
 import com.sdt.Editor.MathClassses.MathDisplay;
 import com.sdt.Datos.Datos;
+import com.sdt.Datos.Distribuciones;
+import com.sdt.Datos.Frecuencias;
 import com.sdt.Datos.Trabajos;
 import com.sdt.Datos.dao.DatosDao;
 import com.sdt.Editor.MathClassses.Graphs;
@@ -32,6 +34,8 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
@@ -46,8 +50,34 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  */
 public class MainController implements Initializable {
 
+    //Primera vista
     @FXML
     private TextArea datosGarea;
+    @FXML
+    private TableView tablafrec;
+    @FXML
+    private TableColumn<Frecuencias, Integer> notablafrec;
+    @FXML
+    private TableColumn<Frecuencias, String> limitablafrec;
+    @FXML
+    private TableColumn<Frecuencias, String> limstablafrec;
+    @FXML
+    private TableColumn<Frecuencias, String> fabstablafrec;
+    @FXML
+    private TableColumn<Frecuencias, String> freltablafrec;
+    @FXML
+    private TableView tabladist;
+    @FXML
+    private TableColumn<Distribuciones, Integer>notabladist;
+    @FXML
+    private TableColumn<Distribuciones, String>valortabladist;
+    @FXML
+    private TableColumn<Distribuciones, String>dacumabstabladist;
+    @FXML
+    private TableColumn<Distribuciones, String>dacumreltabladist;
+    
+
+    //Grafico de linea
     @FXML
     private LineChart<Number, Number> lineChart;
 
@@ -141,7 +171,7 @@ public class MainController implements Initializable {
         
         
         
-        */
+         */
         valoresfabs.setOnAction((event) -> {
             if (display != null) {
                 if (display.hayDatos()) {
@@ -177,7 +207,7 @@ public class MainController implements Initializable {
         
         
         
-        */
+         */
         valoresfrel.setOnAction((event) -> {
             if (display != null) {
                 if (display.hayDatos()) {
@@ -208,13 +238,12 @@ public class MainController implements Initializable {
             }
         });
 
-        
         //Distribucion absouluta copia
         /*
         
         
         
-        */
+         */
         valoresdacuma.setOnAction((event) -> {
             if (display != null) {
                 if (display.hayDatos()) {
@@ -245,13 +274,12 @@ public class MainController implements Initializable {
             }
         });
 
-        
         //Distribucion relativa copia
         /*
         
         
         
-        */
+         */
         valoresdacumr.setOnAction((event) -> {
             if (display != null) {
                 if (display.hayDatos()) {
@@ -266,7 +294,7 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         etiquetadacumr.setOnAction((event) -> {
             if (display != null) {
                 if (display.hayDatos()) {
@@ -305,8 +333,11 @@ public class MainController implements Initializable {
     }
 
     private void calculate() {
-        MathDisplay mat = new MathDisplay(datosGarea, list, nombre);
+        MathDisplay mat = new MathDisplay(datosGarea, list, nombre, tablafrec, notablafrec,
+                limitablafrec, limstablafrec, fabstablafrec, freltablafrec,tabladist, notabladist, 
+                valortabladist,dacumabstabladist,dacumreltabladist);
         display = mat;
+
         Graphs graphdisplay = new Graphs();
         graphdisplay.displayLineChart(lineChart, list, nombre);
 
@@ -325,6 +356,12 @@ public class MainController implements Initializable {
                     titulo3, ejex3, ejey3, serie3);
             graphdisplay.displaydistAcRel(dacumr, mat.getdistacRel(), mat.getintervalosdist(),
                     titulo4, ejex4, ejey4, serie4);
+        }else{
+            lineChart.getData().clear();
+            histograma.getData().clear();
+            histogramarel.getData().clear();
+            dacuma.getData().clear();
+            dacumr.getData().clear();
         }
 
     }
