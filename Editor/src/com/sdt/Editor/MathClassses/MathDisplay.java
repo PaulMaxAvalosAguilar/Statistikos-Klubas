@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2017 Paul Max Avalos Aguilar at S.D.T. pauldromeasaurio@hotmail.com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -59,6 +60,7 @@ public class MathDisplay {
     private DescriptiveStatistics stats;
 
     private final String nombre;
+    private final int decimales;
     private boolean ceil;
 
     //variables para charts
@@ -73,11 +75,14 @@ public class MathDisplay {
     private boolean hayDatos;
 
     public MathDisplay(TextArea text, List<Datos> list,
-            String nombre, TableView tablafrec, TableColumn<Frecuencias, Integer> notablafrec,
+            String nombre,
+            int decimales,
+            TableView tablafrec,
+            TableColumn<Frecuencias, Integer> notablafrec,
             TableColumn<Frecuencias, String> limitablafrec,
             TableColumn<Frecuencias, String> limstablafrec,
             TableColumn<Frecuencias, String> fabstablafrec,
-            TableColumn<Frecuencias, String> freltablafrec, 
+            TableColumn<Frecuencias, String> freltablafrec,
             TableView tabladist,
             TableColumn<Distribuciones, Integer> notabladist,
             TableColumn<Distribuciones, String> valortabladist,
@@ -86,6 +91,7 @@ public class MathDisplay {
         this.datosGarea = text;
         this.list = list;
         this.nombre = nombre;
+        this.decimales = decimales;
         this.tablafrec = tablafrec;
         this.notablafrec = notablafrec;
         this.limitablafrec = limitablafrec;
@@ -106,91 +112,115 @@ public class MathDisplay {
 
             this.hayDatos = true;
 
-            String textAppend;
+            int decimals = this.decimales;
+            StringBuilder builder = new StringBuilder();
+            builder.append("##");
+
+            for (int i = 0; i < decimals; i++) {
+                if (i == 0) {
+                    builder.append(".");
+                }
+                builder.append("#");
+            }
+            DecimalFormat fN = new DecimalFormat(builder.toString());
+
+            String textAppend = "";
             List<Double> modeList = new ArrayList();
             stats = new DescriptiveStatistics();
-
+            int max_dem_lenght = 0;
+            String[] splitter= Double.valueOf(0).toString().split("\\.");;
             for (int counter = 0; counter < list.size(); counter++) {
 
                 double d = list.get(counter).getNumero();
+
+                splitter = Double.valueOf(d).toString().split("\\.");
+                if (splitter[1].length() > max_dem_lenght) {
+                    max_dem_lenght = splitter[1].length();
+                }
                 stats.addValue(d);
                 modeList.add(d);
             }
 
-            textAppend = String.format("Datos calculados del workspace: %S\n", nombre);
-            datosGarea.appendText(textAppend);
+            StringBuilder sc = new StringBuilder();
+            sc.append(".");
+            if (splitter[1].length() >= 1) {
+                for (int i = 0; i < splitter[1].length() - 1; i++) {
+                    sc.append("0");
+                }
+            }
+            sc.append("1");
+
+            double decimalTablas = Double.parseDouble(sc.toString());
 
             double numero_valores = stats.getN();
-            textAppend = String.format("El numero de valores es: %1.0f\n", numero_valores);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El numero de valores es: %s\n", fN.format(numero_valores));
 
             double minValue = stats.getMin();
             double maxValue = stats.getMax();
-            textAppend = String.format("El valor mas grande es: %.2f\nEl valor mas pequeño es: %.2f\n",
-                    maxValue, minValue);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El valor mas grande es: %s\nEl valor mas pequeño es: %s\n",
+                    fN.format(maxValue), fN.format(minValue));
 
             double range = Math.abs(maxValue - minValue);
-            textAppend = String.format("El valor del rango es: %.2f\n", range);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El valor del rango es: %s\n", fN.format(range));
 
             Double[] arr = modeList.toArray(new Double[modeList.size()]);
             List<Double> modes = getMode(arr);
 
-            textAppend = String.format("\n\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("\n\n");
             for (Double number : modes) {
-                textAppend = String.format("La moda es %.2f\n", number);
-                datosGarea.appendText(textAppend);
+                textAppend += String.format("La moda es %s\n", fN.format(number));
             }
-            textAppend = String.format("\n\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("\n\n");
 
             double mean = stats.getMean();
-            textAppend = String.format("La mediana es: %.6f\n", mean);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("La media es: %s\n", fN.format(mean));
 
             double median = stats.getPercentile(50);
-            textAppend = String.format("La media es: %.6f\n", median);
-            datosGarea.appendText(textAppend);
-
-            double standardDeviation = stats.getStandardDeviation();
-            textAppend = String.format("La desviacion estandar es: %.6f\n", standardDeviation);
-            datosGarea.appendText(textAppend);
-
-            double desviacion_aprox = range / 4;
-            textAppend = String.format("El desviacion aproximada es de %.2f\n", desviacion_aprox);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("La mediana es: %s\n", fN.format(median));
 
             double variance = stats.getVariance();
-            textAppend = String.format("La varianza es: %.6f\n", variance);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("La varianza es: %s\n", fN.format(variance));
+
+            double standardDeviation = stats.getStandardDeviation();
+            textAppend += String.format("La desviacion estandar es: %s\n",
+                    fN.format(standardDeviation));
+
+            double coefic_var = (standardDeviation / mean) * 100;
+            textAppend += String.format("El coeficiente de variacion es de %s%%\n",
+                    fN.format(coefic_var));
+
+            double desviacion_aprox = range / 4;
+            textAppend += String.format("El desviacion aproximada es de %s\n",
+                    fN.format(desviacion_aprox));
 
             double sesgo = stats.getSkewness();
-            textAppend = String.format("El sesgo es: %.6f\n", sesgo);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El sesgo es: %s\n", fN.format(sesgo));
 
-            double reglaSesentayCincoBajo = mean - standardDeviation;
-            textAppend = String.format("El limite inferior al 65%% es %.2f\n", reglaSesentayCincoBajo);
-            datosGarea.appendText(textAppend);
+            double reglaSesentayOchoBajo = mean - standardDeviation;
+            textAppend += String.format("El limite inferior al 68%% es %s\n",
+                    fN.format(reglaSesentayOchoBajo));
 
-            double reglaSesentayCincoAlto = mean + standardDeviation;
-            textAppend = String.format("El limite superior al 65%% es %.2f\n", reglaSesentayCincoAlto);
-            datosGarea.appendText(textAppend);
+            double reglaSesentayOchoAlto = mean + standardDeviation;
+            textAppend += String.format("El limite superior al 68%% es %s\n",
+                    fN.format(reglaSesentayOchoAlto));
 
             double reglaNoventayCincoBajo = mean - (standardDeviation * 2);
-            textAppend = String.format("El limite inferior al 95%% es %.2f\n", reglaNoventayCincoBajo);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El limite inferior al 95%% es %s\n",
+                    fN.format(reglaNoventayCincoBajo));
 
             double reglaNoventayCincoAlto = mean + (standardDeviation * 2);
-            textAppend = String.format("El limite superior al 95%% es %.2f\n", reglaNoventayCincoAlto);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El limite superior al 95%% es %s\n",
+                    fN.format(reglaNoventayCincoAlto));
 
-            double coefic_var = standardDeviation / mean;
-            textAppend = String.format("El coeficiente de variacion es %.2f\n", coefic_var);
-            datosGarea.appendText(textAppend);
+            double reglaNoventaySieteBajo = mean - (standardDeviation * 3);
+            textAppend += String.format("El limite inferior al 97%% es %s\n",
+                    fN.format(reglaNoventaySieteBajo));
 
-            interpreta(sesgo, mean, median, standardDeviation);
+            double reglaNoventaySieteAlto = mean + (standardDeviation * 3);
+            textAppend += String.format("El limite superior al 97%% es %s\n",
+                    fN.format(reglaNoventaySieteAlto));
+
+            textAppend += interpreta(sesgo, mean, median, standardDeviation, coefic_var);
             /*
             
             
@@ -212,25 +242,21 @@ public class MathDisplay {
             
             
              */
-            textAppend = String.format("\n\nAnalisis de frecuencias\n\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("\n\nAnalisis de frecuencias\n\n");
             int numero_clase;
             for (numero_clase = 0;; numero_clase++) {
 
                 double square = Math.pow(2, numero_clase);
-                textAppend = String.format("%d.- %.2f\n", numero_clase, square);
-                datosGarea.appendText(textAppend);
+                textAppend += String.format("%d.- %.2f\n", numero_clase, square);
                 if (square > numero_valores) {
-                    textAppend = String.format("%.2f es mayor que el numero de datos\n", square);
-                    datosGarea.appendText(textAppend);
+                    textAppend += String.format("%.2f es mayor que el numero de datos\n", square);
                     break;
 
                 }
 
             }
 
-            textAppend = String.format("\nEl numero de clases es %d\n", numero_clase);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("\nEl numero de clases es %d\n", numero_clase);
 
             /*
             
@@ -253,8 +279,7 @@ public class MathDisplay {
             
             
              */
-            textAppend = String.format("El largo de clase es %.2f\n", largoClase);
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("El largo de clase es %.2f\n", largoClase);
 
             //Listas para charts
             List<Double> valoresAc = new ArrayList<>();
@@ -297,7 +322,7 @@ public class MathDisplay {
                     }
                 } else {
                     limiteSuperior = limiteInferior + largoClase;
-                    siguienteValor = limiteSuperior - .01;
+                    siguienteValor = limiteSuperior - decimalTablas;
                     frecuencia = 0;
                     for (Double d : modeList) {
                         if ((d >= limiteInferior) && (d <= siguienteValor)) {
@@ -314,13 +339,12 @@ public class MathDisplay {
                 Set of values for display
                 
                  */
-                DecimalFormat fE = new DecimalFormat("#.####");
 
                 frecuencias.setNumero(i + 1);
-                frecuencias.setFrecAbs(fE.format(frecuencia));
-                frecuencias.setFrecRel(String.format("%.2f%%", relativa));
-                frecuencias.setLimiteInferior(fE.format(limiteInferior));
-                frecuencias.setSiguienteValor(fE.format(siguienteValor));
+                frecuencias.setFrecAbs(fN.format(frecuencia));
+                frecuencias.setFrecRel(String.format("%s%%", fN.format(relativa)));
+                frecuencias.setLimiteInferior(fN.format(limiteInferior));
+                frecuencias.setSiguienteValor(fN.format(siguienteValor));
                 valoresAc.add(frecuencia);
                 valoresRel.add(relativa);
                 datosFrec.add(frecuencias);
@@ -342,7 +366,7 @@ public class MathDisplay {
                     "frecAbs"));
             freltablafrec.setCellValueFactory(new PropertyValueFactory<Frecuencias, String>(
                     "frecRel"));
-            tablafrec.setItems(datosFrec);
+
 
             /*
             
@@ -371,9 +395,9 @@ public class MathDisplay {
             setdistacAbs(distacAbs);
             setdistacRel(distacRel);
             setintervalosdist(intervalosdist);
-            
+
             final ObservableList<Distribuciones> datosDistr = FXCollections.observableArrayList();
-            
+
             double frecAc = 0;
             double frecRel = 0;
             limiteInferior = minValue;
@@ -398,11 +422,11 @@ public class MathDisplay {
 
                 }
 
-                DecimalFormat fE = new DecimalFormat("#.####");
+                
                 dist.setNumero(i + 1);
-                dist.setValor(fE.format(limiteInferior));
-                dist.setDistribucionacum(fE.format(frecAc));
-                dist.setDistribucionrelativa(String.format("%.2f%%", frecRel));
+                dist.setValor(fN.format(limiteInferior));
+                dist.setDistribucionacum(fN.format(frecAc));
+                dist.setDistribucionrelativa(String.format("%s%%", fN.format(frecRel)));
                 distacRel.add(frecRel);
                 distacAbs.add(frecAc);
                 datosDistr.add(dist);
@@ -414,7 +438,7 @@ public class MathDisplay {
                 limiteInferior = limiteSuperior;
             }
             limiteInferior = minValue;
-            
+
             notabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, Integer>(
                     "numero"));
             valortabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, String>(
@@ -423,71 +447,83 @@ public class MathDisplay {
                     "distribucionacum"));
             dacumreltabladist.setCellValueFactory(new PropertyValueFactory<Distribuciones, String>(
                     "distribucionrelativa"));
-            tabladist.setItems(datosDistr);
+
+            // COLOCA TEXTO
+            final String textoThread = textAppend;
+            Platform.runLater(() -> {
+                tablafrec.setItems(datosFrec);
+                tabladist.setItems(datosDistr);
+                datosGarea.appendText(textoThread);
+            });
 
         } else {
-            datosGarea.appendText("No hay valores\n");
             this.hayDatos = false;
-            tablafrec.getItems().clear();
-            tabladist.getItems().clear();
+
+            Platform.runLater(() -> {
+                datosGarea.appendText("No hay valores\n");
+                tablafrec.getItems().clear();
+                tabladist.getItems().clear();
+            });
+
         }
 
     }
 
-    private void interpreta(double sesgo, double mean, double median, double standardDeviation) {
+    private String interpreta(double sesgo, double mean, double median,
+            double standardDeviation, double coefic_var) {
         boolean simetrico;
-        String textAppend;
 
-        textAppend = String.format("\n\nInterpretacion de la grafica\n\n");
-        datosGarea.appendText(textAppend);
+        String textAppend = "";
+        textAppend += String.format("\n\nInterpretacion de la grafica\n\n");
         if ((sesgo > .5) || (sesgo < -.5)) {
-            textAppend = String.format("1.-La grafica no es simetrica\n");
+            textAppend += String.format("1.-La grafica no es simetrica\n");
             simetrico = false;
 
-            datosGarea.appendText(textAppend);
             if (sesgo > .5) {
-                textAppend = String.format("La grafica es asimetrica hacia la izquierda\n");
-                datosGarea.appendText(textAppend);
+                textAppend += String.format("La grafica es asimetrica hacia la izquierda\n");
             } else if (sesgo < -.5) {
-                textAppend = String.format("La grafica es asimetrica hacia la derecha\n");
-                datosGarea.appendText(textAppend);
+                textAppend += String.format("La grafica es asimetrica hacia la derecha\n");
             }
         } else {
-            textAppend = String.format("1.-La grafica es simetrica\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("1.-La grafica es simetrica\n");
             simetrico = true;
         }
 
         double rendimiento = (((mean - median) / median) * 100);
-        textAppend = String.format("2.-El rendimiento media-mediana es de %.2f%%", rendimiento);
-        datosGarea.appendText(textAppend);
+        textAppend += String.format("2.-El rendimiento media-mediana es de %.2f%%", rendimiento);
         if ((rendimiento > 5) || (rendimiento < -5)) {
-            textAppend = String.format(" por lo tanto la media no es representativa\nporque su valor"
+            textAppend += String.format(" por lo tanto la media no es representativa\nporque su valor"
                     + " no es semejante al de la mediana por lo tanto no tipitfica al conjunto de datos\n");
-            datosGarea.appendText(textAppend);
         } else {
-            textAppend = String.format(" por lo tanto la media es representativa\nporque su valor"
+            textAppend += String.format(" por lo tanto la media es representativa\nporque su valor"
                     + " no es semejante al de la media por lo tanto tipifica al conjunto de datos\n");
-            datosGarea.appendText(textAppend);
+        }
+
+        if (coefic_var > 20) {
+            textAppend += String.format("3.-En este caso la grafica es ancha....pues el valor del coeficiente\n"
+                    + "de variacion es mayor a 20 y nuestros datos estan muy separados\n");
+            if (simetrico == true) {
+                textAppend += String.format("aun cuando \nnuestros datos son simetricos\n");
+            }
+        } else if (coefic_var <= 20) {
+            textAppend += String.format("3.-En este caso la grafica NO es ancha....pues el valor del coeficiente\n"
+                    + "de variacion es MENOr a 20\n");
         }
 
         if (simetrico == true) {
-            textAppend = String.format("3.-La regla empirica se cumple porque la grafica es simetrica\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("4.-La regla empirica se cumple porque la grafica es simetrica\n");
         } else {
-            textAppend = String.format("3.-La regla empirica no se cumple porque la grafica no es simetrica\n");
-            datosGarea.appendText(textAppend);
+            textAppend += String.format("4.-La regla empirica no se cumple porque la grafica no es simetrica\n");
         }
 
-        textAppend = String.format("4.-La dispercion de mis datos con respecto a la media es de %.2f\n", standardDeviation);
-        datosGarea.appendText(textAppend);
-        textAppend = String.format("Si yo tomo un dato cualquiera va a tener esa dispercion promedio\n");
-        datosGarea.appendText(textAppend);
-        textAppend = String.format("El valor real va a ser cualquier numero menos la media\n");
-        datosGarea.appendText(textAppend);
-        textAppend = String.format("5.-El coeficiente de variacion puede que sea simetrico pero con unos datos "
-                + "muy separados\n");
-        datosGarea.appendText(textAppend);
+        textAppend += String.format("5.-La dispercion de mis datos con respecto a la media es de %.2f\n",
+                standardDeviation);
+        textAppend += String.format("Si yo tomo un dato cualquiera va a tener esa dispercion promedio\n");
+
+        textAppend += String.format("6.- Si la desviacion estandar aproximada es muy distante de la  "
+                + "desviacion estandar, la desviacion estandar\n aproximada no es confiable\n");
+
+        return textAppend;
     }
 
     public List getMode(Double[] m) {

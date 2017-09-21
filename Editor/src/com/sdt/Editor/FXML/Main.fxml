@@ -20,7 +20,7 @@
         <tabs>
           <Tab text="Datos Generales">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #1FAEEB;">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: ff0037;">
                      <children>
                         <TextArea fx:id="datosGarea" layoutX="22.0" layoutY="17.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="190.0" prefWidth="755.0" style="-fx-background-color: #3333FF;" AnchorPane.bottomAnchor="253.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="17.0" />
                         <TableView fx:id="tablafrec" layoutX="22.0" layoutY="220.0" prefHeight="202.0" prefWidth="355.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="22.0">

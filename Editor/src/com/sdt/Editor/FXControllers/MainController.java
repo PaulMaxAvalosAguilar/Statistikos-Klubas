@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2017 Paul Max Avalos Aguilar at S.D.T. pauldromeasaurio@hotmail.com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,20 @@
  */
 package com.sdt.Editor.FXControllers;
 
-import com.sdt.Editor.MathClassses.MathDisplay;
+
 import com.sdt.Datos.Datos;
 import com.sdt.Datos.Distribuciones;
 import com.sdt.Datos.Frecuencias;
 import com.sdt.Datos.Trabajos;
 import com.sdt.Datos.dao.DatosDao;
 import com.sdt.Editor.MathClassses.Graphs;
+import com.sdt.Editor.MathClassses.MathDisplay;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -41,7 +44,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javax.persistence.EntityManager;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * FXML Controller class
@@ -68,14 +70,13 @@ public class MainController implements Initializable {
     @FXML
     private TableView tabladist;
     @FXML
-    private TableColumn<Distribuciones, Integer>notabladist;
+    private TableColumn<Distribuciones, Integer> notabladist;
     @FXML
-    private TableColumn<Distribuciones, String>valortabladist;
+    private TableColumn<Distribuciones, String> valortabladist;
     @FXML
-    private TableColumn<Distribuciones, String>dacumabstabladist;
+    private TableColumn<Distribuciones, String> dacumabstabladist;
     @FXML
-    private TableColumn<Distribuciones, String>dacumreltabladist;
-    
+    private TableColumn<Distribuciones, String> dacumreltabladist;
 
     //Grafico de linea
     @FXML
@@ -153,14 +154,14 @@ public class MainController implements Initializable {
     @FXML
     private Button etiquetadacumr;
 
+    
     private Trabajos trabajo;
     private int numero;
-    private String nombre;
+    String nombre = "";
 
     private List<Datos> list;
     private DatosDao ddao;
 
-    private DescriptiveStatistics stats;
     private MathDisplay display;
 
     @Override
@@ -329,40 +330,63 @@ public class MainController implements Initializable {
         list = man.createQuery(sb.toString()).getResultList();
 
         datosGarea.setText("");
-        calculate();
+        calculate(2);
     }
 
-    private void calculate() {
-        MathDisplay mat = new MathDisplay(datosGarea, list, nombre, tablafrec, notablafrec,
-                limitablafrec, limstablafrec, fabstablafrec, freltablafrec,tabladist, notabladist, 
-                valortabladist,dacumabstabladist,dacumreltabladist);
-        display = mat;
+    public void hayValores() {
+        datosGarea.setText("Hay valores");
+    }
 
-        Graphs graphdisplay = new Graphs();
-        graphdisplay.displayLineChart(lineChart, list, nombre);
+    public void hayValoresErr() {
+        datosGarea.setText("Hay valores con errores");
+    }
 
-        fabslabel.setText(nombre);
-        frellabel.setText(nombre);
-        dacumalabel.setText(nombre);
-        dacumrlabel.setText(nombre);
+    private void calculate(int decimals) {
 
-        if (mat.hayDatos()) {
-            graphdisplay.displayAbsFreqHistogram(histograma, mat.getFrecuenciaAbs(),
-                    mat.getIntervalos(), titulo1, ejex1, ejey1, serie1);
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                MathDisplay mat = new MathDisplay(datosGarea, list, nombre, decimals, tablafrec,
+                        notablafrec, limitablafrec, limstablafrec, fabstablafrec, freltablafrec,
+                        tabladist, notabladist, valortabladist, dacumabstabladist,
+                        dacumreltabladist);
+                display = mat;
 
-            graphdisplay.displayRelFreqHistograma(histogramarel, mat.getFrecuenciaRel(),
-                    mat.getIntervalos(), titulo2, ejex2, ejey2, serie2);
-            graphdisplay.displaydistAcAbs(dacuma, mat.getdistacAbs(), mat.getintervalosdist(),
-                    titulo3, ejex3, ejey3, serie3);
-            graphdisplay.displaydistAcRel(dacumr, mat.getdistacRel(), mat.getintervalosdist(),
-                    titulo4, ejex4, ejey4, serie4);
-        }else{
-            lineChart.getData().clear();
-            histograma.getData().clear();
-            histogramarel.getData().clear();
-            dacuma.getData().clear();
-            dacumr.getData().clear();
-        }
+                Graphs graphdisplay = new Graphs();
+                graphdisplay.displayLineChart(lineChart, list, nombre);
+
+                Platform.runLater(() -> {
+                    fabslabel.setText(nombre);
+                    frellabel.setText(nombre);
+                    dacumalabel.setText(nombre);
+                    dacumrlabel.setText(nombre);
+                });
+
+                if (mat.hayDatos()) {
+                    graphdisplay.displayAbsFreqHistogram(histograma, mat.getFrecuenciaAbs(),
+                            mat.getIntervalos(), titulo1, ejex1, ejey1, serie1);
+
+                    graphdisplay.displayRelFreqHistograma(histogramarel, mat.getFrecuenciaRel(),
+                            mat.getIntervalos(), titulo2, ejex2, ejey2, serie2);
+                    graphdisplay.displaydistAcAbs(dacuma, mat.getdistacAbs(), mat.getintervalosdist(),
+                            titulo3, ejex3, ejey3, serie3);
+                    graphdisplay.displaydistAcRel(dacumr, mat.getdistacRel(), mat.getintervalosdist(),
+                            titulo4, ejex4, ejey4, serie4);
+                } else {
+                    Platform.runLater(() -> {
+                        lineChart.getData().clear();
+                        histograma.getData().clear();
+                        histogramarel.getData().clear();
+                        dacuma.getData().clear();
+                        dacumr.getData().clear();
+                    });
+
+                }
+                return null;
+            }
+
+        };
+        new Thread(task).start();
 
     }
 }

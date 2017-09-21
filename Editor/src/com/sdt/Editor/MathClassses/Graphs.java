@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2017 Paul Max Avalos Aguilar at S.D.T. pauldromeasaurio@hotmail.com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,17 @@ package com.sdt.Editor.MathClassses;
 
 import com.sdt.Datos.Datos;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
 
-
 /**
  *
  * @author Paul Max Avalos Aguilar at S.D.T. pauldromeasaurio@hotmail.com
  */
-
 public class Graphs {
-
-
 
     public Graphs() {
 
@@ -41,13 +38,14 @@ public class Graphs {
     public void displayLineChart(LineChart<Number, Number> linechart, List<Datos> list,
             String nombre) {
 
-        linechart.getData().clear();
-        linechart.setCreateSymbols(true);
-
-        //El titulo debe de ser modificado
-        linechart.setTitle(nombre);
-        linechart.getXAxis().setLabel("No. de dato");
-        linechart.getYAxis().setLabel("Valor de dato");
+        Platform.runLater(() -> {
+            linechart.getData().clear();
+            linechart.setCreateSymbols(true);
+            //El titulo debe de ser modificado
+            linechart.setTitle(nombre);
+            linechart.getXAxis().setLabel("No. de dato");
+            linechart.getYAxis().setLabel("Valor de dato");
+        });
 
         XYChart.Series series;
         series = new XYChart.Series();
@@ -60,17 +58,22 @@ public class Graphs {
         }
 
         //displays Data
-        linechart.getData().add(series);
+        Platform.runLater(() -> {
+            linechart.getData().add(series);
+        });
+
     }
 
     public void displayAbsFreqHistogram(BarChart<String, Number> histograma, List<Double> list,
-        List<String> intervalos, TextField titulo, TextField ejex, TextField ejey, 
-        TextField serie) {
+            List<String> intervalos, TextField titulo, TextField ejex, TextField ejey,
+            TextField serie) {
 
-        histograma.getData().clear();
-        histograma.titleProperty().bindBidirectional(titulo.textProperty());
-        histograma.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
-        histograma.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        Platform.runLater(() -> {
+            histograma.getData().clear();
+            histograma.titleProperty().bindBidirectional(titulo.textProperty());
+            histograma.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
+            histograma.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        });
 
         XYChart.Series series;
         series = new XYChart.Series();
@@ -81,20 +84,22 @@ public class Graphs {
             series.getData().add(new XYChart.Data(intervalos.get(counter), d));
         }
 
-        histograma.getData().add(series);
+        Platform.runLater(() -> {
+            histograma.getData().add(series);
+        });
 
     }
-    
+
     public void displayRelFreqHistograma(BarChart<String, Number> histograma, List<Double> list,
-        List<String> intervalos, TextField titulo, TextField ejex, TextField ejey, 
-        TextField serie){
+            List<String> intervalos, TextField titulo, TextField ejex, TextField ejey,
+            TextField serie) {
 
-        
-        histograma.getData().clear();
-        
-        histograma.titleProperty().bindBidirectional(titulo.textProperty());
-        histograma.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
-        histograma.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        Platform.runLater(() -> {
+            histograma.getData().clear();
+            histograma.titleProperty().bindBidirectional(titulo.textProperty());
+            histograma.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
+            histograma.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        });
 
         XYChart.Series series;
         series = new XYChart.Series();
@@ -105,21 +110,22 @@ public class Graphs {
             series.getData().add(new XYChart.Data(intervalos.get(counter), d));
         }
 
-        histograma.getData().add(series);
-        
+        Platform.runLater(() -> {
+            histograma.getData().add(series);
+        });
+
     }
-    
+
     public void displaydistAcAbs(LineChart<Number, Number> linechart, List<Double> list,
-        List<String> intervalos, TextField titulo, TextField ejex, TextField ejey, 
-        TextField serie){
-        
+            List<String> intervalos, TextField titulo, TextField ejex, TextField ejey,
+            TextField serie) {
 
-        
-        linechart.getData().clear();
-        
-        linechart.titleProperty().bindBidirectional(titulo.textProperty());
-        linechart.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
-        linechart.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        Platform.runLater(() -> {
+            linechart.getData().clear();
+            linechart.titleProperty().bindBidirectional(titulo.textProperty());
+            linechart.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
+            linechart.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        });
 
         XYChart.Series series;
         series = new XYChart.Series();
@@ -130,21 +136,22 @@ public class Graphs {
             series.getData().add(new XYChart.Data(intervalos.get(counter), d));
         }
 
-        linechart.getData().add(series);
-        
+        Platform.runLater(() -> {
+            linechart.getData().add(series);
+        });
+
     }
-    
-    public void displaydistAcRel(LineChart<Number, Number> linechart, List<Double> list,
-        List<String> intervalos, TextField titulo, TextField ejex, TextField ejey, 
-        TextField serie){
-        
 
-        
-        linechart.getData().clear();
-        
-        linechart.titleProperty().bindBidirectional(titulo.textProperty());
-        linechart.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
-        linechart.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+    public void displaydistAcRel(LineChart<Number, Number> linechart, List<Double> list,
+            List<String> intervalos, TextField titulo, TextField ejex, TextField ejey,
+            TextField serie) {
+
+        Platform.runLater(() -> {
+            linechart.getData().clear();
+            linechart.titleProperty().bindBidirectional(titulo.textProperty());
+            linechart.getXAxis().labelProperty().bindBidirectional(ejex.textProperty());
+            linechart.getYAxis().labelProperty().bindBidirectional(ejey.textProperty());
+        });
 
         XYChart.Series series;
         series = new XYChart.Series();
@@ -155,7 +162,9 @@ public class Graphs {
             series.getData().add(new XYChart.Data(intervalos.get(counter), d));
         }
 
-        linechart.getData().add(series);
+        Platform.runLater(() -> {
+            linechart.getData().add(series);
+        });
     }
 
 }
